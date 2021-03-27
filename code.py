@@ -1,8 +1,8 @@
 # UNIDAD 3: MÍNIMOS CUADRADOS
 import time
-import datetime
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 
@@ -55,13 +55,15 @@ def ecuaciones_normales(n, t, y):
     Salida: un vector x de parámetros para un ajuste polinomial (orden n) 
             usando los datos de t (entrada) & y (salida).
     """
-    
+
     m = len(t)
     A = [[t[i]**j for j in range(n)] for i in range(m)]
+
     AT = np.transpose(A)
     A = np.matmul(AT, A)
     L = np.linalg.cholesky(A)
     LT = np.transpose(L)
+
     ye = sucesiva_hacia_adelante(L, np.matmul(AT, y))
     x = sucesiva_hacia_atras(LT, ye)
 
@@ -70,15 +72,49 @@ def ecuaciones_normales(n, t, y):
 
 # Método de Householder
 def householder(n, t, y):
-    return "ayno"
+    """
+    Entrada: un entero n, un vector t y un vector y.
+    Salida: un vector x de parámetros para un ajuste polinomial (orden n) 
+            usando los datos de t (entrada) & y (salida).
+    """
+
+    m = len(t)
+    A = [[t[i]**j for j in range(n)] for i in range(m)]
+
+    for i in range(n):
+
+        a = [A[j][i] for j in range(m)]
+        alfa = 0
+        for j in a: alfa += j**2
+        alfa = alfa**0.5
+
+        v = []
+        if (A[i][i]-alfa <= 0): alfa *= -1
+        for j in range(m):
+            if (j == i): v += [a[j] - alfa]
+            else: v += [a[j]]
+
+        for k in range(n):
+            vTx, vTv = 0, 0
+            for j in range(m): vTx += v[j] * A[j][k]
+            for j in range(m): vTv += v[j] * v[j]
+            for j in range(i, m): 
+                A[j][k] = round(A[j][k] - 2 * (vTx/vTv) * v[j], 3)
+        
+        vTx, vTv = 0, 0
+        for j in range(m): vTx += v[j]*y[j]
+        for j in range(m): vTv += v[j]*v[j]
+        for j in range(i, m):
+            y[j] = round(y[j] - 2 * (vTx/vTv) * v[j], 3)
+
+        for j in A: print(j)
+        print("---")
+        for j in y: print(j)
+        print()
 
 
-# Importación de los datos de prueba
-url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio_2_CC/main/urbanGB.csv"
-data = pd.read_csv(url, header=None, na_values=" ?")
 
-
-# Separación de los datos de entrenamiento y validación
-t, y = data.drop(1, axis=1), data[1]
-t_train, t_test, y_train, y_test = train_test_split(t, y, test_size=0.3, random_state=42)
-x = ecuaciones_normales(20, t_train[0].values.tolist(), t_test[0].values.tolist())
+n = 3
+t = [-1, -0.5, 0, 0.5, 1]
+y = [1, 0.5, 0, 0.5, 2]
+householder(n, t, y)
