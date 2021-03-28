@@ -3,7 +3,6 @@ import time
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 
 
@@ -119,45 +118,50 @@ def householder(n, t, y):
     return x
 
 
-# Ejecuta una función polinómica
+# Ejecuta una función polinómica para una entrada t con parámetros x
 def polinomio(n, t, x):
-    """
-    Entrada: un entero n, un entero t y un vector x.
-    Salida: un entero ft que resulta de ejecutar la función polinómica 
-            de orden n con los parámetros de x.
-    """
     ft = 0
     for i in range(n): ft += x[i]*t**i
     return ft
 
 
 # Dibuja los puntos y función resultante en el plano
-def paint_example(n, t, y, method):
+def ejemplo(n, te, ye, tv, yv, metodo):
 
     # Obtención de x
-    if (method == 1):
+    if (metodo == 1):
         start = time.time()
-        x = ecuaciones_normales(n, t, y)
+        x = ecuaciones_normales(n, te, ye)
         time_ = time.time() - start
     else:
         start = time.time()
-        x = householder(n, t, y)
+        x = householder(n, te, ye)
         time_ = time.time() - start
     
-    # Datos de validación
-    m, min_t, max_t = len(t), min(t), max(t)
-    t_ = np.linspace(min_t, max_t, 1000)
-    y_ = [polinomio(n, i, x) for i in t_]
+    # Gráfica de la función
+    me, mv = len(te), len(tv)
+    min_t, max_t = min(te), max(te)
+    t_funcion = np.linspace(min_t, max_t, 1000)
+    y_funcion = [polinomio(n, i, x) for i in t_funcion]
+    plt.plot(t_funcion, y_funcion, color="black")
 
-    # Muestra el resultado de x y el tiempo de ejecución
-    if (method == 1): plt.title("Método de Ecuaciones Normales")
+    # Exactitud del método (Usando el Error Cuadrático Medio)
+    yp = [polinomio(n, i, x) for i in tv]
+    ecm = 0
+    for i in range(mv): ecm += (yp[i] - yv[i])**2
+    ecm /= mv
+
+    # Resultado de x y tiempo de ejecución
+    if (metodo == 1): plt.title("Método de Ecuaciones Normales")
     else: plt.title("Método de Householder")
-    print("x = {0}".format([round(i, 3) for i in x]))
-    print("Tiempo = {0}".format(round(time_, 5)))
+    print("x =", [round(i, 3) for i in x])
+    print("Tiempo =", round(time_, 5))
+    print("ECM =", round(ecm, 5))
 
-    # Muestra la gráfica de los conjuntos de entrenamiento y validación
-    for i in range(m): plt.plot(t[i], y[i], marker="o", color="blue")
-    plt.plot(t_, y_, color="black")
+    # Gráfica de los conjuntos de entrenamiento y validación
+    for i in range(me): plt.plot(te[i], ye[i], marker=".", color="blue")
+    for i in range(mv): plt.plot(tv[i], yp[i], marker=".", color="purple")
+    for i in range(mv): plt.plot(tv[i], yv[i], marker=".", color="red")
     plt.xlabel('t')
     plt.ylabel('y')
     plt.grid()
@@ -166,11 +170,24 @@ def paint_example(n, t, y, method):
 
 # EJEMPLO DE PRUEBA (También se encuentra en el informe)
 def main():
-    n = 3
-    t = [-1, -0.5, 0, 0.5, 1]
-    y = [1, 0.5, 0, 0.5, 2]
-    paint_example(n, t, y, 1)
-    paint_example(n, t, y, 2)
+
+    # Importación de los datos de prueba
+    url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/shampoo.csv"
+    datos = pd.read_csv(url)
+    datos["Month"] = datos["Month"].str.replace('-','').astype(float)
+
+
+    # # Separación de los datos de entrenamiento y validación
+    t, y = datos.drop("Sales", axis=1), datos["Sales"]
+    te, tv, ye, yv = train_test_split(t, y, test_size=0.3, random_state=42)
+    te = te["Month"].values.tolist()
+    ye = ye.tolist()
+    tv = tv["Month"].values.tolist()
+    yv = yv.tolist()
+
+    # Funciones obtenidas
+    ejemplo(3, te, ye, tv, yv, 1)
+    ejemplo(3, te, ye, tv, yv, 2)
 
 
 main()
