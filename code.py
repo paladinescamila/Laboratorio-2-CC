@@ -80,6 +80,7 @@ def householder(n, t, y):
 
     m = len(t)
     A = [[t[i]**j for j in range(n)] for i in range(m)]
+    b = [i for i in y]
 
     for i in range(n):
 
@@ -88,9 +89,9 @@ def householder(n, t, y):
         for j in a: alfa += j**2
         alfa = alfa**0.5
 
-        v = []
-        if (A[i][i]-alfa <= 0): alfa *= -1
-        for j in range(m):
+        if (A[i][i] > 0): alfa *= -1
+        v = [0 for _ in range(i)]
+        for j in range(i, m):
             if (j == i): v += [a[j] - alfa]
             else: v += [a[j]]
 
@@ -98,23 +99,66 @@ def householder(n, t, y):
             vTx, vTv = 0, 0
             for j in range(m): vTx += v[j] * A[j][k]
             for j in range(m): vTv += v[j] * v[j]
-            for j in range(i, m): 
-                A[j][k] = round(A[j][k] - 2 * (vTx/vTv) * v[j], 3)
+            for j in range(i, m): A[j][k] = A[j][k] - 2 * (vTx/vTv) * v[j]
         
         vTx, vTv = 0, 0
-        for j in range(m): vTx += v[j]*y[j]
-        for j in range(m): vTv += v[j]*v[j]
-        for j in range(i, m):
-            y[j] = round(y[j] - 2 * (vTx/vTv) * v[j], 3)
+        for j in range(m): vTx += v[j] * b[j]
+        for j in range(m): vTv += v[j] * v[j]
+        for j in range(i, m): b[j] = b[j] - 2 * (vTx/vTv) * v[j]
 
-        for j in A: print(j)
-        print("---")
-        for j in y: print(j)
-        print()
+    x = sucesiva_hacia_atras(A[:n], b[:n])
+
+    return x
 
 
+# Ejecuta una función polinómica
+def polinomio(n, t, x):
+    """
+    Entrada: un entero n, un entero t y un vector x.
+    Salida: un entero ft que resulta de ejecutar la función polinómica 
+            de orden n con los parámetros de x.
+    """
+    ft = 0
+    for i in range(n): ft += x[i]*t**i
+    return ft
 
-n = 3
-t = [-1, -0.5, 0, 0.5, 1]
-y = [1, 0.5, 0, 0.5, 2]
-householder(n, t, y)
+
+# Dibuja los puntos y función resultante en el plano
+def paint_example(n, t, y):
+    m, min_t, max_t = len(t), min(t), max(t)
+    t_ = np.linspace(min_t, max_t, 1000)
+
+    start = time.time()
+    xe = ecuaciones_normales(n, t, y)
+    e_time = time.time() - start
+    ye = [polinomio(n, i, xe) for i in t_]
+    print("Método de Ecuaciones Normales")
+    print("x = {0}".format([round(i, 3) for i in xe]))
+    print("Tiempo = {0}".format(round(e_time, 5)))
+    for i in range(m): plt.plot(t[i], y[i], marker="o", color="black")
+    plt.plot(t_, ye, color="blue")
+    plt.grid()
+    plt.show()
+
+    start = time.time()
+    xh = householder(n, t, y)
+    h_time = time.time() - start
+    yh = [polinomio(n, i, xh) for i in t_]
+    print("Método de Householder")
+    print("x = {0}".format([round(i, 5) for i in xh]))
+    print("Tiempo = {0}".format(round(h_time, 5)))
+    for i in range(m): plt.plot(t[i], y[i], marker="o", color="black")
+    plt.plot(t_, yh, color="red")
+    plt.grid()
+    plt.show()
+
+
+# EJEMPLOS DE PRUEBA (También se encuentran en el informe)
+def main():
+    n = 3
+    t = [-1, -0.5, 0, 0.5, 1]
+    y = [1, 0.5, 0, 0.5, 2]
+    paint_example(n, t, y)
+
+
+main()
