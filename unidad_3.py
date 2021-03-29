@@ -159,9 +159,9 @@ def ejemplo(n, te, ye, tv, yv, metodo):
     print("ECM =", round(ecm, 3))
 
     # Gráfica de los conjuntos de entrenamiento y validación
-    for i in range(me): plt.plot(te[i], ye[i], marker=".", color="blue")
-    for i in range(mv): plt.plot(tv[i], yp[i], marker=".", color="purple")
-    for i in range(mv): plt.plot(tv[i], yv[i], marker=".", color="red")
+    for i in range(me): plt.plot(te[i], ye[i], marker="o", markersize=5, color="blue")
+    for i in range(mv): plt.plot(tv[i], yv[i], marker="o", markersize=5, color="green")
+    for i in range(mv): plt.plot(tv[i], yp[i], marker="o", markersize=5, color="red")
     plt.xlabel('t')
     plt.ylabel('y')
     plt.grid()
