@@ -91,10 +91,10 @@ def householder(n, t, y):
         a = [A[j][i] for j in range(m)]
         alfa = 0
         for j in a: alfa += j**2
-        alfa = alfa**0.5
+        alfa **= 0.5
+        if (A[i][i] > 0): alfa *= -1
 
         # Cómputo de v
-        if (A[i][i] > 0): alfa *= -1
         v = [0 for _ in range(i)]
         for j in range(i, m):
             if (j == i): v += [a[j] - alfa]
@@ -156,7 +156,7 @@ def ejemplo(n, te, ye, tv, yv, metodo):
     else: plt.title("Método de Householder")
     print("x =", [round(i, 3) for i in x])
     print("Tiempo =", round(time_, 5))
-    print("ECM =", round(ecm, 5))
+    print("ECM =", round(ecm, 3))
 
     # Gráfica de los conjuntos de entrenamiento y validación
     for i in range(me): plt.plot(te[i], ye[i], marker=".", color="blue")
@@ -177,7 +177,7 @@ def main():
     datos["Month"] = datos["Month"].str.replace('-','').astype(float)
 
 
-    # # Separación de los datos de entrenamiento y validación
+    # Separación de los datos de entrenamiento y validación
     t, y = datos.drop("Sales", axis=1), datos["Sales"]
     te, tv, ye, yv = train_test_split(t, y, test_size=0.3, random_state=42)
     te = te["Month"].values.tolist()
@@ -185,7 +185,7 @@ def main():
     tv = tv["Month"].values.tolist()
     yv = yv.tolist()
 
-    # Funciones obtenidas
+    # Solución con ambos métodos
     ejemplo(3, te, ye, tv, yv, 1)
     ejemplo(3, te, ye, tv, yv, 2)
 
