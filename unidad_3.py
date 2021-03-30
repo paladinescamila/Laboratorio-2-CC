@@ -89,29 +89,25 @@ def householder(n, t, y):
     for i in range(n):
 
         # Obtención de a y alfa
-        a = [A[j][i] for j in range(m)]
-        alfa = 0
+        a, alfa = [A[j][i] for j in range(m)], 0
         for j in a: alfa += j**2
         alfa **= 0.5
         if (A[i][i] > 0): alfa *= -1
 
         # Cómputo de v
-        v = [0 for _ in range(i)]
-        for j in range(i, m):
-            if (j == i): v += [a[j] - alfa]
-            else: v += [a[j]]
+        v, vTv = [0 for _ in range(i)], 0
+        for j in range(i, m): v += [a[j] - alfa] if (j == i) else [a[j]]
+        for j in range(m): vTv += v[j] * v[j]
 
         # Cómputo de H en A
         for k in range(n):
-            vTx, vTv = 0, 0
+            vTx = 0
             for j in range(m): vTx += v[j] * A[j][k]
-            for j in range(m): vTv += v[j] * v[j]
             for j in range(i, m): A[j][k] = A[j][k] - 2 * (vTx/vTv) * v[j]
 
         # Cómputo de H en b
-        vTx, vTv = 0, 0
+        vTx = 0
         for j in range(m): vTx += v[j] * b[j]
-        for j in range(m): vTv += v[j] * v[j]
         for j in range(i, m): b[j] = b[j] - 2 * (vTx/vTv) * v[j]
 
     x = sucesiva_hacia_atras(A[:n], b[:n])
@@ -147,8 +143,7 @@ def ejemplo(n, te, ye, tv, yv, metodo):
     plt.plot(t_funcion, y_funcion, color="black")
 
     # Exactitud del método (usando el Error Cuadrático Medio)
-    yp = [polinomio(n, i, x) for i in tv]
-    ecm = 0
+    yp, ecm = [polinomio(n, i, x) for i in tv], 0
     for i in range(mv): ecm += (yp[i] - yv[i])**2
     ecm /= mv
 
