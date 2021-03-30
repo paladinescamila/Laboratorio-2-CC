@@ -2,6 +2,7 @@
 import time
 import numpy as np
 import pandas as pd
+from datetime import datetime
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
@@ -51,7 +52,7 @@ def sucesiva_hacia_adelante(A, b):
 def ecuaciones_normales(n, t, y):
     """
     Entrada: un entero n, un vector t y un vector y.
-    Salida: un vector x de parámetros para un ajuste polinomial (orden n) 
+    Salida: un vector x de parámetros para un ajuste polinomial (orden n-1) 
             usando los datos de t (entrada) & y (salida).
     """
 
@@ -76,7 +77,7 @@ def ecuaciones_normales(n, t, y):
 def householder(n, t, y):
     """
     Entrada: un entero n, un vector t y un vector y.
-    Salida: un vector x de parámetros para un ajuste polinomial (orden n) 
+    Salida: un vector x de parámetros para un ajuste polinomial (orden n-1) 
             usando los datos de t (entrada) & y (salida).
     """
 
@@ -140,7 +141,7 @@ def ejemplo(n, te, ye, tv, yv, metodo):
     
     # Gráfica de la función
     me, mv = len(te), len(tv)
-    min_t, max_t = min(te), max(te)
+    min_t, max_t = min(min(te), min(tv)), max(max(te), max(tv))
     t_funcion = np.linspace(min_t, max_t, 1000)
     y_funcion = [polinomio(n, i, x) for i in t_funcion]
     plt.plot(t_funcion, y_funcion, color="black")
@@ -154,7 +155,7 @@ def ejemplo(n, te, ye, tv, yv, metodo):
     # Resultado de x y tiempo de ejecución
     if (metodo == 1): plt.title("Método de Ecuaciones Normales")
     else: plt.title("Método de Householder")
-    print("x =", [round(i, 3) for i in x])
+    print("x =", [round(i, 10) for i in x])
     print("Tiempo =", round(time_, 5))
     print("ECM =", round(ecm, 3))
 
@@ -174,16 +175,20 @@ def main():
     # Importación de los datos de prueba
     url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/shampoo.csv"
     datos = pd.read_csv(url)
-    datos["Month"] = datos["Month"].str.replace('-','').astype(float)
-
 
     # Separación de los datos de entrenamiento y validación
     t, y = datos.drop("Sales", axis=1), datos["Sales"]
     te, tv, ye, yv = train_test_split(t, y, test_size=0.3, random_state=42)
-    te = te["Month"].values.tolist()
-    ye = ye.tolist()
-    tv = tv["Month"].values.tolist()
-    yv = yv.tolist()
+    te, ye = te["Month"].values.tolist(), ye.tolist()
+    tv, yv = tv["Month"].values.tolist(), yv.tolist()
+    
+    # Transforma fechas en timestamp
+    for i in range(len(te)): 
+        string = "200" + te[i][:2] + te[i][2:4] + "-01"
+        te[i] = datetime.timestamp(datetime.strptime(string,"%Y-%m-%d"))/100
+    for i in range(len(tv)): 
+        string = "200" + tv[i][:2] + tv[i][2:4] + "-01"
+        tv[i] = datetime.timestamp(datetime.strptime(string,"%Y-%m-%d"))/100
 
     # Solución con ambos métodos
     ejemplo(3, te, ye, tv, yv, 1)
