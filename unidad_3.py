@@ -146,7 +146,7 @@ def ejemplo(n, te, ye, tv, yv, metodo):
     y_funcion = [polinomio(n, i, x) for i in t_funcion]
     plt.plot(t_funcion, y_funcion, color="black")
 
-    # Exactitud del método (Usando el Error Cuadrático Medio)
+    # Exactitud del método (usando el Error Cuadrático Medio)
     yp = [polinomio(n, i, x) for i in tv]
     ecm = 0
     for i in range(mv): ecm += (yp[i] - yv[i])**2
@@ -155,9 +155,7 @@ def ejemplo(n, te, ye, tv, yv, metodo):
     # Resultado de x y tiempo de ejecución
     if (metodo == 1): plt.title("Método de Ecuaciones Normales")
     else: plt.title("Método de Householder")
-    print("x =", [round(i, 10) for i in x])
-    print("Tiempo =", round(time_, 5))
-    print("ECM =", round(ecm, 3))
+    print("x = {0}\nTiempo = {1}\nECM = {2}".format(x, time_, ecm))
 
     # Gráfica de los conjuntos de entrenamiento y validación
     for i in range(me): plt.plot(te[i], ye[i], marker="o", markersize=5, color="blue")
@@ -169,10 +167,10 @@ def ejemplo(n, te, ye, tv, yv, metodo):
     plt.show()
 
 
-# EJEMPLO DE PRUEBA (También se encuentra en el informe)
+# EJEMPLO DE PRUEBA
 def main():
 
-    # Importación de los datos de prueba
+    # Importación de los datos
     url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/shampoo.csv"
     datos = pd.read_csv(url)
 
@@ -182,13 +180,13 @@ def main():
     te, ye = te["Month"].values.tolist(), ye.tolist()
     tv, yv = tv["Month"].values.tolist(), yv.tolist()
     
-    # Transforma fechas en timestamp
+    # Transformación de fechas a timestamp
     for i in range(len(te)): 
-        string = "200" + te[i][:2] + te[i][2:4] + "-01"
-        te[i] = datetime.timestamp(datetime.strptime(string,"%Y-%m-%d"))/100
+        d = "200" + te[i][:2] + te[i][2:4] + "-01"
+        te[i] = datetime.timestamp(datetime.strptime(d, "%Y-%m-%d")) / 100
     for i in range(len(tv)): 
-        string = "200" + tv[i][:2] + tv[i][2:4] + "-01"
-        tv[i] = datetime.timestamp(datetime.strptime(string,"%Y-%m-%d"))/100
+        d = "200" + tv[i][:2] + tv[i][2:4] + "-01"
+        tv[i] = datetime.timestamp(datetime.strptime(d, "%Y-%m-%d")) / 100
 
     # Solución con ambos métodos
     ejemplo(3, te, ye, tv, yv, 1)
