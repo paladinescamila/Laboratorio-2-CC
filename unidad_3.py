@@ -150,7 +150,7 @@ def ejemplo(n, te, ye, tv, yv, metodo):
     # Resultado de x y tiempo de ejecución
     if (metodo == 1): plt.title("Método de Ecuaciones Normales")
     else: plt.title("Método de Householder")
-    print("x = {0}\nTiempo = {1}\nECM = {2}".format(x, time_, ecm))
+    print("x = {0}\nTiempo = {1:.5f}\nECM = {2:.2f}".format(x, time_, ecm))
 
     # Gráfica de los conjuntos de entrenamiento y validación
     for i in range(me): plt.plot(te[i], ye[i], marker="o", markersize=5, color="blue")
