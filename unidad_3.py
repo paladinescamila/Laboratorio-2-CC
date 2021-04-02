@@ -55,17 +55,14 @@ def ecuaciones_normales(n, t, y):
             usando los datos de t (entrada) & y (salida).
     """
 
-    # Ajuste de datos
     m = len(t)
     A = [[t[i]**j for j in range(n)] for i in range(m)]
 
-    # Transpuestas y descomposición de Cholesky
     AT = np.transpose(A)
     A = np.matmul(AT, A)
     L = np.linalg.cholesky(A)
     LT = np.transpose(L)
 
-    # Solución de los sistemas triangulares
     ye = sucesiva_hacia_adelante(L, np.matmul(AT, y))
     x = sucesiva_hacia_atras(LT, ye)
 
@@ -80,28 +77,23 @@ def householder(n, t, y):
             usando los datos de t (entrada) & y (salida).
     """
 
-    # Ajuste de datos
     m = len(t)
     A = [[t[i]**j for j in range(n)] for i in range(m)]
     b = [i for i in y]
 
     for i in range(n):
 
-        # Obtención de a y alfa
         a = [0 for _ in range(i)] + [A[j][i] for j in range(i, m)]
         alfa = np.linalg.norm(a) if (A[i][i] < 0) else (-1) * np.linalg.norm(a)
 
-        # Construcción de v
         v = [a[j] - alfa if (j == i) else a[j] for j in range(m)]
         vTv = np.linalg.norm(v)**2
 
-        # Cómputo de H en A
         for k in range(n):
             vTx = 0
             for j in range(m): vTx += v[j] * A[j][k]
             for j in range(m): A[j][k] -= 2 * (vTx/vTv) * v[j]
 
-        # Cómputo de H en b
         vTx = 0
         for j in range(m): vTx += v[j] * b[j]
         for j in range(m): b[j] -= 2 * (vTx/vTv) * v[j]
@@ -119,8 +111,13 @@ def polinomio(n, t, x):
 
 # Dibuja los puntos y función resultante en el plano
 def graficar(n, te, ye, tv, yv):
+    """
+    Entrada: un entero n y cuatro vectores te, ye, tv, yv que contienen
+            los datos de entrenamiento y validación, respectivamente.
+    Salida: parámetros x del ajuste de datos, tiempo de cómputo y error
+            cuadrático medio, para ambos métodos.
+    """
 
-    # Resultados de los métodos
     inicio = time.time()
     x_en = ecuaciones_normales(n, te, ye)
     tiempo_en = time.time() - inicio
@@ -129,14 +126,12 @@ def graficar(n, te, ye, tv, yv):
     x_hh = householder(n, te, ye)
     tiempo_hh = time.time() - inicio
     
-    # Gráfica de la función
     me, mv = len(te), len(tv)
     min_t, max_t = min(min(te), min(tv)), max(max(te), max(tv))
     t_funcion = np.linspace(min_t, max_t, 1000)
     y_funcion = [polinomio(n, i, x_en) for i in t_funcion]
     plt.plot(t_funcion, y_funcion, color="black")
 
-    # Gráfica de los conjuntos de entrenamiento y validación
     for i in range(me): plt.plot(te[i], ye[i], marker=".", color="blue")
     for i in range(mv): plt.plot(tv[i], yv[i], marker=".", color="red")
     plt.xlabel('t')
@@ -144,13 +139,11 @@ def graficar(n, te, ye, tv, yv):
     plt.grid()
     plt.show()
 
-    # Error de los métodos (Error Cuadrático Medio)
     yp = [polinomio(n, i, x_en) for i in tv]
     ecm_en = sum([(yp[i] - yv[i])**2 for i in range(mv)]) / mv
     yp = [polinomio(n, i, x_hh) for i in tv]
     ecm_hh = sum([(yp[i] - yv[i])**2 for i in range(mv)]) / mv
 
-    # Resultado de x
     print("Método de Ecuaciones Normales")
     print("x = {0}\nECM = {1}\nTiempo = {2}\n".format(x_en, ecm_en, tiempo_en))
     print("Método de Householder")
