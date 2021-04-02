@@ -144,9 +144,9 @@ def graficar(n, te, ye, tv, yv):
     yp = [polinomio(n, i, x_hh) for i in tv]
     ecm_hh = sum([(yp[i] - yv[i])**2 for i in range(mv)]) / mv
 
-    print("Método de Ecuaciones Normales")
+    print("MÉTODO DE ECUACIONES NORMALES")
     print("x = {0}\nECM = {1}\nTiempo = {2}\n".format(x_en, ecm_en, tiempo_en))
-    print("Método de Householder")
+    print("MÉTODO DE HOUSEHOLDER")
     print("x = {0}\nECM = {1}\nTiempo = {2}\n".format(x_hh, ecm_hh, tiempo_hh))
 
     return x_en, x_hh, tiempo_en, tiempo_hh, ecm_en, ecm_hh
@@ -178,15 +178,57 @@ def procesar(url):
 # EJEMPLOS DE PRUEBA (También se ecuentran en el informe)
 def main():
 
-    print("EJEMPLO 1")
+    print("EJEMPLO 1: Muertos por COVID-19")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/muertos.csv"
     te, ye, tv, yv = procesar(url)
     graficar(5, te, ye, tv, yv)
 
-    print("EJEMPLO 2")
+    print("EJEMPLO 2: Recuperados de COVID-19")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/recuperados.csv"
     te, ye, tv, yv = procesar(url)
     graficar(6, te, ye, tv, yv)
 
 
 main()
+
+
+# ----------------------------------------------------------------------
+# ANÁLISIS DE COMPLEJIDAD Y EXACTITUD DE LOS MÉTODOS
+
+# Conocer los resultados de cada n y sus estadísticas
+def estadisticas_n(url):
+    n = [i for i in range(2, 7)]
+    te, ye, tv, yv = procesar(url)
+    t_en, t_hh, e_en, e_hh = [], [], [], []
+
+    for i in range(2, 7):
+        _, _, tiempo_en, tiempo_hh, ecm_en, ecm_hh = graficar(i, te, ye, tv, yv)
+        t_en += [tiempo_en]
+        t_hh += [tiempo_hh]
+        e_en += [ecm_en]
+        e_hh += [ecm_hh]
+
+    print("TIEMPO DE EJECUCIÓN")
+    plt.plot(n, t_hh, marker="o", color="red")
+    plt.plot(n, t_en, marker="o", color="blue")
+    plt.xlabel("n")
+    plt.ylabel("Tiempo")
+    plt.grid()
+    plt.show()
+
+    print("ERROR CUADRÁTICO MEDIO")
+    plt.plot(n, e_hh, marker="o", color="red")
+    plt.plot(n, e_en, marker="o", color="blue")
+    plt.xlabel("n")
+    plt.ylabel("Error Cuadrático Medio")
+    plt.grid()
+    plt.show()
+
+
+print("EJEMPLO 1: Muertos por COVID-19")
+url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/muertos.csv"
+estadisticas_n(url)
+
+print("EJEMPLO 2: Recuperados de COVID-19")
+url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/recuperados.csv"
+estadisticas_n(url)
