@@ -156,13 +156,7 @@ def graficar(n, te, ye, tv, yv):
     print("Método de Householder")
     print("x = {0}\nECM = {1}\nTiempo = {2}\n".format(x_hh, ecm_hh, tiempo_hh))
 
-    # Tiempos de ejecución
-    plt.bar(["Ecuaciones Normales", "Householder"], [tiempo_en, tiempo_hh])
-    plt.xlabel("Método")
-    plt.ylabel("Tiempo")
-    plt.show()
-
-    return tiempo_en, tiempo_hh, ecm_en, ecm_hh
+    return x_en, x_hh, tiempo_en, tiempo_hh, ecm_en, ecm_hh
 
 
 # Procesamiento de los datos (adaptado a los ejemplos)
@@ -173,7 +167,7 @@ def procesar(url):
             de validación tv (entradas) y yv (salidas).
     """
 
-    N = 100
+    N = 50
     datos = pd.read_csv(url)
     borrar = ["Province/State", "Country/Region", "Lat", "Long"]
     for i in borrar: datos = datos.drop(i, axis=1)
@@ -192,14 +186,14 @@ def procesar(url):
 def main():
 
     print("EJEMPLO 1")
-    url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
+    url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/muertos.csv"
     te, ye, tv, yv = procesar(url)
     graficar(5, te, ye, tv, yv)
 
-    # print("EJEMPLO 2")
-    # url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv"
-    # te, ye, tv, yv = procesar(url)
-    # graficar(5, te, ye, tv, yv)
+    print("EJEMPLO 2")
+    url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/recuperados.csv"
+    te, ye, tv, yv = procesar(url)
+    graficar(6, te, ye, tv, yv)
 
 
 main()
