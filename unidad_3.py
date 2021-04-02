@@ -2,7 +2,6 @@
 import time
 import numpy as np
 import pandas as pd
-from datetime import datetime
 import matplotlib.pyplot as plt
 
 
@@ -181,12 +180,12 @@ def main():
     print("EJEMPLO 1: Muertos por COVID-19")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/muertos.csv"
     te, ye, tv, yv = procesar(url)
-    graficar(5, te, ye, tv, yv)
+    graficar(6, te, ye, tv, yv)
 
     print("EJEMPLO 2: Recuperados de COVID-19")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/recuperados.csv"
     te, ye, tv, yv = procesar(url)
-    graficar(6, te, ye, tv, yv)
+    graficar(5, te, ye, tv, yv)
 
 
 main()
@@ -202,6 +201,7 @@ def estadisticas_n(url):
     t_en, t_hh, e_en, e_hh = [], [], [], []
 
     for i in range(2, 7):
+        print("n =", i)
         _, _, tiempo_en, tiempo_hh, ecm_en, ecm_hh = graficar(i, te, ye, tv, yv)
         t_en += [tiempo_en]
         t_hh += [tiempo_hh]
