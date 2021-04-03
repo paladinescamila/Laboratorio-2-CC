@@ -54,8 +54,7 @@ def ecuaciones_normales(n, t, y):
             usando los datos de t (entrada) & y (salida).
     """
 
-    m = len(t)
-    A = [[t[i]**j for j in range(n)] for i in range(m)]
+    A = [[i**j for j in range(n)] for i in t]
 
     AT = np.transpose(A)
     A = np.matmul(AT, A)
@@ -77,7 +76,7 @@ def householder(n, t, y):
     """
 
     m = len(t)
-    A = [[t[i]**j for j in range(n)] for i in range(m)]
+    A = [[i**j for j in range(n)] for i in t]
     b = [i for i in y]
 
     for i in range(n):
@@ -89,12 +88,10 @@ def householder(n, t, y):
         vTv = np.linalg.norm(v)**2
 
         for k in range(n):
-            vTx = 0
-            for j in range(m): vTx += v[j] * A[j][k]
+            vTx = sum([v[j] * A[j][k] for j in range(m)])
             for j in range(m): A[j][k] -= 2 * (vTx/vTv) * v[j]
 
-        vTx = 0
-        for j in range(m): vTx += v[j] * b[j]
+        vTx = sum([v[j] * b[j] for j in range(m)])
         for j in range(m): b[j] -= 2 * (vTx/vTv) * v[j]
 
     x = sucesiva_hacia_atras(A[:n], b[:n])
@@ -108,47 +105,50 @@ def polinomio(n, t, x):
     return ft
 
 
-# Dibuja los puntos y función resultante en el plano
-def graficar(n, te, ye, tv, yv):
+# Grafica los puntos y función resultante en el plano
+def resolver(n, te, ye, tv, yv, metodo, mostrar):
     """
-    Entrada: un entero n y cuatro vectores te, ye, tv, yv que contienen
-            los datos de entrenamiento y validación, respectivamente.
-    Salida: parámetros x del ajuste de datos, tiempo de cómputo y error
-            cuadrático medio, para ambos métodos.
+    Entrada: un entero n, cuatro vectores te, ye, tv, yv que contienen
+            los datos de entrenamiento y validación, respectivamente, 
+            un entero "metodo" que es 1 si se calcula para Ecuaciones
+            Normales y es 2 si se calcula para Householder, y un booleano
+            "mostrar" que si es verdadero grafica las funciones e imprime 
+            los resultados.
+    Salida: parámetros x del ajuste de datos, error cuadrático medio, y
+            tiempo de cómputo para el método seleccionado.
     """
 
-    inicio = time.time()
-    x_en = ecuaciones_normales(n, te, ye)
-    tiempo_en = time.time() - inicio
-
-    inicio = time.time()
-    x_hh = householder(n, te, ye)
-    tiempo_hh = time.time() - inicio
+    if (metodo == 1):
+        if (mostrar): print("Método de Ecuaciones Normales")
+        inicio = time.time()
+        x = ecuaciones_normales(n, te, ye)
+        tiempo = time.time() - inicio
+    else:
+        if (mostrar): print("Método de Householder")
+        inicio = time.time()
+        x = householder(n, te, ye)
+        tiempo = time.time() - inicio
     
     me, mv = len(te), len(tv)
-    min_t, max_t = min(min(te), min(tv)), max(max(te), max(tv))
-    t_funcion = np.linspace(min_t, max_t, 1000)
-    y_funcion = [polinomio(n, i, x_en) for i in t_funcion]
-    plt.plot(t_funcion, y_funcion, color="black")
+    yp = [polinomio(n, i, x) for i in tv]
+    ecm = sum([(yp[i] - yv[i])**2 for i in range(mv)]) / mv
 
-    for i in range(me): plt.plot(te[i], ye[i], marker=".", color="blue")
-    for i in range(mv): plt.plot(tv[i], yv[i], marker=".", color="red")
-    plt.xlabel('t')
-    plt.ylabel('y')
-    plt.grid()
-    plt.show()
+    if (mostrar):
+        print("x = {0}\nECM = {1}\nTiempo = {2}".format(x, ecm, tiempo))
+        
+        min_t, max_t = min(min(te), min(tv)), max(max(te), max(tv))
+        t_funcion = np.linspace(min_t, max_t, 1000)
+        y_funcion = [polinomio(n, i, x) for i in t_funcion]
+        plt.plot(t_funcion, y_funcion, color="black")
 
-    yp = [polinomio(n, i, x_en) for i in tv]
-    ecm_en = sum([(yp[i] - yv[i])**2 for i in range(mv)]) / mv
-    yp = [polinomio(n, i, x_hh) for i in tv]
-    ecm_hh = sum([(yp[i] - yv[i])**2 for i in range(mv)]) / mv
+        for i in range(me): plt.plot(te[i], ye[i], marker=".", color="blue")
+        for i in range(mv): plt.plot(tv[i], yv[i], marker=".", color="red")
+        plt.xlabel('t')
+        plt.ylabel('y')
+        plt.grid()
+        plt.show()
 
-    print("MÉTODO DE ECUACIONES NORMALES")
-    print("x = {0}\nECM = {1}\nTiempo = {2}\n".format(x_en, ecm_en, tiempo_en))
-    print("MÉTODO DE HOUSEHOLDER")
-    print("x = {0}\nECM = {1}\nTiempo = {2}\n".format(x_hh, ecm_hh, tiempo_hh))
-
-    return x_en, x_hh, tiempo_en, tiempo_hh, ecm_en, ecm_hh
+    return x, ecm, tiempo
 
 
 # Procesamiento de los datos (adaptado a los ejemplos)
@@ -177,15 +177,17 @@ def procesar(url):
 # EJEMPLOS DE PRUEBA (También se ecuentran en el informe)
 def main():
 
-    print("EJEMPLO 1: Muertos por COVID-19")
+    print("EJEMPLO 1")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/muertos.csv"
     te, ye, tv, yv = procesar(url)
-    graficar(6, te, ye, tv, yv)
+    resolver(6, te, ye, tv, yv, 1, True)
+    resolver(6, te, ye, tv, yv, 2, True)
 
-    print("EJEMPLO 2: Recuperados de COVID-19")
+    print("EJEMPLO 2")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/recuperados.csv"
     te, ye, tv, yv = procesar(url)
-    graficar(5, te, ye, tv, yv)
+    resolver(5, te, ye, tv, yv, 1, True)
+    resolver(5, te, ye, tv, yv, 2, True)
 
 
 main()
@@ -194,21 +196,27 @@ main()
 # ----------------------------------------------------------------------
 # ANÁLISIS DE COMPLEJIDAD Y EXACTITUD DE LOS MÉTODOS
 
-# Conocer los resultados de cada n y sus estadísticas
-def estadisticas_n(url):
+# Comparar los métodos con los diferentes valores de n
+def estadisticas(url):
     n = [i for i in range(2, 7)]
     te, ye, tv, yv = procesar(url)
     t_en, t_hh, e_en, e_hh = [], [], [], []
 
-    for i in range(2, 7):
-        print("n =", i)
-        _, _, tiempo_en, tiempo_hh, ecm_en, ecm_hh = graficar(i, te, ye, tv, yv)
+    for i in n:
+        x, ecm_en, tiempo_en = resolver(i, te, ye, tv, yv, 1, False)
+        x, ecm_hh, tiempo_hh = resolver(i, te, ye, tv, yv, 2, False)
         t_en += [tiempo_en]
         t_hh += [tiempo_hh]
         e_en += [ecm_en]
         e_hh += [ecm_hh]
 
-    print("TIEMPO DE EJECUCIÓN")
+    print("-----------------------------------------------------")
+    print("                 Tiempo de ejecución                 ")
+    print("-----------------------------------------------------")
+    print("n\tEcuaciones Normales\tHouseholder")
+    print("-----------------------------------------------------")
+    for i in n: print("{0}\t{1}\t{2}".format(i, t_en[i-2], t_hh[i-2]))
+    print("-----------------------------------------------------")
     plt.plot(n, t_hh, marker="o", color="red")
     plt.plot(n, t_en, marker="o", color="blue")
     plt.xlabel("n")
@@ -216,7 +224,13 @@ def estadisticas_n(url):
     plt.grid()
     plt.show()
 
-    print("ERROR CUADRÁTICO MEDIO")
+    print("-----------------------------------------------------")
+    print("               Error Cuadrático Medio                ")
+    print("-----------------------------------------------------")
+    print("n\tEcuaciones Normales\tHouseholder")
+    print("-----------------------------------------------------")
+    for i in n: print("{0}\t{1}\t{2}".format(i, e_en[i-2], e_hh[i-2]))
+    print("-----------------------------------------------------")
     plt.plot(n, e_hh, marker="o", color="red")
     plt.plot(n, e_en, marker="o", color="blue")
     plt.xlabel("n")
@@ -225,10 +239,10 @@ def estadisticas_n(url):
     plt.show()
 
 
-print("EJEMPLO 1: Muertos por COVID-19")
+print("EJEMPLO 1")
 url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/muertos.csv"
-estadisticas_n(url)
+estadisticas(url)
 
-print("EJEMPLO 2: Recuperados de COVID-19")
+print("EJEMPLO 2")
 url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/recuperados.csv"
-estadisticas_n(url)
+estadisticas(url)
