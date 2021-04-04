@@ -174,7 +174,7 @@ def procesar(url):
     return te, ye, tv, yv
 
 
-# EJEMPLOS DE PRUEBA (También se ecuentran en el informe)
+# EJEMPLOS DE PRUEBA (También se encuentran en el informe)
 def main():
 
     print("EJEMPLO 1")
