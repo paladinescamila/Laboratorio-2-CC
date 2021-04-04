@@ -230,7 +230,7 @@ def estadisticas(url):
     print("n\tEcuaciones Normales\tTransformaciones Householder")
     print("------------------------------------------------------------")
     for i in n: print("{0}\t{1}\t{2}".format(i, e_en[i-2], e_hh[i-2]))
-    print("-----------------------------------------------------------")
+    print("------------------------------------------------------------")
     plt.plot(n, e_en, marker="o", color="red")
     plt.plot(n, e_hh, marker="o", color="blue")
     plt.xlabel("n")
