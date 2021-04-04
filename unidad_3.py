@@ -67,7 +67,7 @@ def ecuaciones_normales(n, t, y):
     return x
 
 
-# Método de Householder
+# Método de Transformaciones Householder
 def householder(n, t, y):
     """
     Entrada: un entero n, un vector t y un vector y.
@@ -124,7 +124,7 @@ def resolver(n, te, ye, tv, yv, metodo, mostrar):
         x = ecuaciones_normales(n, te, ye)
         tiempo = time.time() - inicio
     else:
-        if (mostrar): print("Método de Householder")
+        if (mostrar): print("Método de Transformaciones Householder")
         inicio = time.time()
         x = householder(n, te, ye)
         tiempo = time.time() - inicio
@@ -210,13 +210,13 @@ def estadisticas(url):
         e_en += [ecm_en]
         e_hh += [ecm_hh]
 
-    print("-----------------------------------------------------")
-    print("                 Tiempo de ejecución                 ")
-    print("-----------------------------------------------------")
-    print("n\tEcuaciones Normales\tHouseholder")
-    print("-----------------------------------------------------")
+    print("------------------------------------------------------------")
+    print("                    Tiempo de ejecución                     ")
+    print("------------------------------------------------------------")
+    print("n\tEcuaciones Normales\tTransformaciones Householder")
+    print("------------------------------------------------------------")
     for i in n: print("{0}\t{1}\t{2}".format(i, t_en[i-2], t_hh[i-2]))
-    print("-----------------------------------------------------")
+    print("------------------------------------------------------------")
     plt.plot(n, t_en, marker="o", color="red")
     plt.plot(n, t_hh, marker="o", color="blue")
     plt.xlabel("n")
@@ -224,13 +224,13 @@ def estadisticas(url):
     plt.grid()
     plt.show()
 
-    print("-----------------------------------------------------")
-    print("               Error Cuadrático Medio                ")
-    print("-----------------------------------------------------")
-    print("n\tEcuaciones Normales\tHouseholder")
-    print("-----------------------------------------------------")
+    print("------------------------------------------------------------")
+    print("                   Error Cuadrático Medio                   ")
+    print("------------------------------------------------------------")
+    print("n\tEcuaciones Normales\tTransformaciones Householder")
+    print("------------------------------------------------------------")
     for i in n: print("{0}\t{1}\t{2}".format(i, e_en[i-2], e_hh[i-2]))
-    print("-----------------------------------------------------")
+    print("-----------------------------------------------------------")
     plt.plot(n, e_en, marker="o", color="red")
     plt.plot(n, e_hh, marker="o", color="blue")
     plt.xlabel("n")
