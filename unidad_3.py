@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-# Funciones auxiliares del anterior laboratorio
+# Función auxiliar: Método de Sustitución Sucesiva hacia atrás
 def sucesiva_hacia_atras(A, b):
     """
     Entrada: una matriz triangular superior A y un vector b.
@@ -26,22 +26,66 @@ def sucesiva_hacia_atras(A, b):
         return x
 
 
-def sucesiva_hacia_adelante(A, b):
+# Función auxiliar: Construye la matriz de eliminación para una columna
+def matriz_de_eliminacion(A, k, g):
     """
-    Entrada: una matriz triangular inferior A y un vector b.
+    Entrada: una matriz cuadrada A, un entero k y un booleano g.
+    Salida: matriz de eliminación de Gauss (si g es verdadero) o matriz de 
+            eliminación de Gauss-Jordan (si g es falso) para la columna Ak.
+    """
+    n = len(A)
+    M = np.identity(n)
+    for i in range(k+1, n):
+        M[i][k] = (-1) * A[i][k] / A[k][k]
+    if (not g):
+        for i in range(k):
+            M[i][k] = (-1) * A[i][k] / A[k][k]
+    
+    return M
+
+
+# Función auxiliar: Permuta una matriz y un vector dados con respecto a una fila de A
+def permutar(A, b, k):
+    """
+    Entrada: una matriz A, un vector b y un entero k.
+    Salida: una matriz A y un vector b permutados con respecto a k,
+            además de un booleano que determina si el nuevo valor
+            del pivote es cero.
+    """
+    n = len(A)
+    i = k + 1
+    while (i != n and A[k][k] == 0):
+        P = np.identity(n)
+        P[k], P[i], P[k][i], P[i][k] = 0, 0, 1, 1
+        A = np.matmul(P, A)
+        b = np.matmul(P, b)
+        i += 1
+    cero = A[k][k] == 0
+
+    return A, b, cero
+
+
+# Función auxiliar: Método de Eliminación de Gauss
+def gauss(A, b):
+    """
+    Entrada: una matriz cuadrada A y un vector b.
     Salida: un vector x tal que Ax = b.
     """
     if (np.linalg.det(A) == 0):
         print("A es una matriz singular, el sistema no tiene solución.")
         return []
     else:
-        n = len(A) - 1
-        x = [b[0] / A[0][0]] + [None for _ in range(n)]
-        for i in range(1, n+1):
-            sumatoria = 0
-            for j in range(i):
-                sumatoria += A[i][j] * x[j]
-            x[i] = round((b[i] - sumatoria) / A[i][i], 5)
+        n = len(A)
+        for k in range(n - 1):
+            if (A[k][k] == 0):
+                A, b, cero = permutar(A, b, k)
+                if (cero):
+                    print("El sistema no tiene solución.")
+                    return []
+            M = matriz_de_eliminacion(A, k, 1)
+            A = np.matmul(M, A)
+            b = np.matmul(M, b)
+        x = sucesiva_hacia_atras(A, b)
 
         return x
 
@@ -55,14 +99,12 @@ def ecuaciones_normales(n, t, y):
     """
 
     A = [[i**j for j in range(n)] for i in t]
+    b = [i for i in y]
 
     AT = np.transpose(A)
     A = np.matmul(AT, A)
-    L = np.linalg.cholesky(A)
-    LT = np.transpose(L)
-
-    ye = sucesiva_hacia_adelante(L, np.matmul(AT, y))
-    x = sucesiva_hacia_atras(LT, ye)
+    b = np.matmul(AT, b)
+    x = gauss(A, b)
 
     return x
 
@@ -75,9 +117,9 @@ def householder(n, t, y):
             usando los datos de t (entrada) & y (salida).
     """
 
-    m = len(t)
     A = [[i**j for j in range(n)] for i in t]
     b = [i for i in y]
+    m = len(t)
 
     for i in range(n):
 
@@ -119,12 +161,12 @@ def resolver(n, te, ye, tv, yv, metodo, mostrar):
     """
 
     if (metodo == 1):
-        if (mostrar): print("Método de Ecuaciones Normales")
+        if (mostrar): plt.title("Método de Ecuaciones Normales")
         inicio = time.time()
         x = ecuaciones_normales(n, te, ye)
         tiempo = time.time() - inicio
     else:
-        if (mostrar): print("Método de Transformaciones Householder")
+        if (mostrar): plt.title("Método de Transformaciones Householder")
         inicio = time.time()
         x = householder(n, te, ye)
         tiempo = time.time() - inicio
@@ -134,8 +176,7 @@ def resolver(n, te, ye, tv, yv, metodo, mostrar):
     ecm = sum([(yp[i] - yv[i])**2 for i in range(mv)]) / mv
 
     if (mostrar):
-        print("x = {0}\nECM = {1}\nTiempo = {2}".format(x, ecm, tiempo))
-        
+
         min_t, max_t = min(min(te), min(tv)), max(max(te), max(tv))
         t_funcion = np.linspace(min_t, max_t, 1000)
         y_funcion = [polinomio(n, i, x) for i in t_funcion]
@@ -147,6 +188,8 @@ def resolver(n, te, ye, tv, yv, metodo, mostrar):
         plt.ylabel('y')
         plt.grid()
         plt.show()
+
+        print("x = {0}\nECM = {1}\nTiempo = {2}\n".format(x, ecm, tiempo))        
 
     return x, ecm, tiempo
 
@@ -180,14 +223,14 @@ def main():
     print("EJEMPLO 1")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/muertos.csv"
     te, ye, tv, yv = procesar(url)
-    resolver(6, te, ye, tv, yv, 1, True)
-    resolver(6, te, ye, tv, yv, 2, True)
+    resolver(12, te, ye, tv, yv, 1, True)
+    resolver(12, te, ye, tv, yv, 2, True)
 
     print("EJEMPLO 2")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/recuperados.csv"
     te, ye, tv, yv = procesar(url)
-    resolver(5, te, ye, tv, yv, 1, True)
-    resolver(5, te, ye, tv, yv, 2, True)
+    resolver(12, te, ye, tv, yv, 1, True)
+    resolver(12, te, ye, tv, yv, 2, True)
 
 
 main()
@@ -198,7 +241,7 @@ main()
 
 # Comparar los métodos con los diferentes valores de n
 def estadisticas(url):
-    n = [i for i in range(2, 7)]
+    n = [i for i in range(1, 13)]
     te, ye, tv, yv = procesar(url)
     t_en, t_hh, e_en, e_hh = [], [], [], []
 
