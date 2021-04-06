@@ -182,14 +182,14 @@ def resolver(n, te, ye, tv, yv, metodo, mostrar):
         y_funcion = [polinomio(n, i, x) for i in t_funcion]
         plt.plot(t_funcion, y_funcion, color="black")
 
-        for i in range(me): plt.plot(te[i], ye[i], marker=".", color="blue")
-        for i in range(mv): plt.plot(tv[i], yv[i], marker=".", color="red")
+        for i in range(me): plt.plot(te[i], ye[i], marker="o", markersize=4, color="blue")
+        for i in range(mv): plt.plot(tv[i], yv[i], marker="o", markersize=4, color="red")
         plt.xlabel('t')
         plt.ylabel('y')
         plt.grid()
         plt.show()
 
-        print("x = {0}\nECM = {1}\nTiempo = {2}\n".format(x, ecm, tiempo))        
+        print("x = {0}\nECM = {1}\nTiempo = {2}\n".format(x, ecm, tiempo))
 
     return x, ecm, tiempo
 
@@ -223,14 +223,16 @@ def main():
     print("EJEMPLO 1")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/muertos.csv"
     te, ye, tv, yv = procesar(url)
-    resolver(12, te, ye, tv, yv, 1, True)
-    resolver(12, te, ye, tv, yv, 2, True)
+    x1, _, _ = resolver(6, te, ye, tv, yv, 1, True)
+    x2, _, _ = resolver(6, te, ye, tv, yv, 2, True)
+    # for i in range(6): print("\t\t$x_{0}$ & {1} & {2} \\\\ \hline".format(i+1, x1[i], x2[i]))
 
     print("EJEMPLO 2")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/recuperados.csv"
     te, ye, tv, yv = procesar(url)
-    resolver(12, te, ye, tv, yv, 1, True)
-    resolver(12, te, ye, tv, yv, 2, True)
+    x1, _, _ = resolver(6, te, ye, tv, yv, 1, True)
+    x2, _, _ = resolver(6, te, ye, tv, yv, 2, True)
+    # for i in range(6): print("\t\t$x_{0}$ & {1} & {2} \\\\ \hline".format(i+1, x1[i], x2[i]))
 
 
 main()
@@ -241,9 +243,10 @@ main()
 
 # Comparar los métodos con los diferentes valores de n
 def estadisticas(url):
-    n = [i for i in range(1, 13)]
+    n = [i for i in range(2, 13)]
     te, ye, tv, yv = procesar(url)
     t_en, t_hh, e_en, e_hh = [], [], [], []
+    # best_en, best_ecm_en, best_hh, best_ecm_hh = 13, float("inf"), 13, float("inf")
 
     for i in n:
         x, ecm_en, tiempo_en = resolver(i, te, ye, tv, yv, 1, False)
@@ -252,6 +255,10 @@ def estadisticas(url):
         t_hh += [tiempo_hh]
         e_en += [ecm_en]
         e_hh += [ecm_hh]
+    #     if (ecm_en < best_ecm_en): best_en, best_ecm_en = i, ecm_en
+    #     if (ecm_hh < best_ecm_hh): best_hh, best_ecm_hh = i, ecm_hh
+    # print(best_en, best_ecm_en)
+    # print(best_hh, best_ecm_hh)
 
     print("------------------------------------------------------------")
     print("                    Tiempo de ejecución                     ")
@@ -259,6 +266,7 @@ def estadisticas(url):
     print("n\tEcuaciones Normales\tTransformaciones Householder")
     print("------------------------------------------------------------")
     for i in n: print("{0}\t{1}\t{2}".format(i, t_en[i-2], t_hh[i-2]))
+    # for i in n: print("\t\t{0} & {1:.5f} & {2:.5f} \\\\ \hline".format(i, t_en[i-2], t_hh[i-2]))
     print("------------------------------------------------------------")
     plt.plot(n, t_en, marker="o", color="red")
     plt.plot(n, t_hh, marker="o", color="blue")
@@ -273,6 +281,7 @@ def estadisticas(url):
     print("n\tEcuaciones Normales\tTransformaciones Householder")
     print("------------------------------------------------------------")
     for i in n: print("{0}\t{1}\t{2}".format(i, e_en[i-2], e_hh[i-2]))
+    # for i in n: print("\t\t{0} & {1:.2f} & {2:.2f} \\\\ \hline".format(i, e_en[i-2], e_hh[i-2]))
     print("------------------------------------------------------------")
     plt.plot(n, e_en, marker="o", color="red")
     plt.plot(n, e_hh, marker="o", color="blue")
