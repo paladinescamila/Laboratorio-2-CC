@@ -153,11 +153,11 @@ def resolver(n, te, ye, tv, yv, metodo, mostrar):
     Entrada: un entero n, cuatro vectores te, ye, tv, yv que contienen
             los datos de entrenamiento y validación, respectivamente, 
             un entero "metodo" que es 1 si se calcula para Ecuaciones
-            Normales y es 2 si se calcula para Householder, y un booleano
-            "mostrar" que si es verdadero grafica las funciones e imprime 
-            los resultados.
-    Salida: parámetros x del ajuste de datos, error cuadrático medio, y
-            tiempo de cómputo para el método seleccionado.
+            Normales y es 2 si se calcula para Transformaciones Householder, 
+            y un booleano "mostrar" que si es verdadero grafica las funciones 
+            e imprime los resultados.
+    Salida: parámetros x del ajuste de datos, error promedio, desviación
+            estándar del error, y tiempo de cómputo para el método seleccionado.
     """
 
     if (metodo == 1):
@@ -172,8 +172,8 @@ def resolver(n, te, ye, tv, yv, metodo, mostrar):
         tiempo = time.time() - inicio
     
     me, mv = len(te), len(tv)
-    yp = [polinomio(n, i, x) for i in tv]
-    ecm = sum([(yp[i] - yv[i])**2 for i in range(mv)]) / mv
+    errores = [np.abs(yv[i] - polinomio(n, tv[i], x)) for i in range(mv)]
+    error_promedio, error_desviacion = np.mean(errores), np.std(errores)
 
     if (mostrar):
 
@@ -184,14 +184,18 @@ def resolver(n, te, ye, tv, yv, metodo, mostrar):
 
         for i in range(me): plt.plot(te[i], ye[i], marker="o", markersize=4, color="blue")
         for i in range(mv): plt.plot(tv[i], yv[i], marker="o", markersize=4, color="red")
+
         plt.xlabel('t')
         plt.ylabel('y')
         plt.grid()
         plt.show()
 
-        print("x = {0}\nECM = {1}\nTiempo = {2}\n".format(x, ecm, tiempo))
+        print("x = {0}".format(x))
+        print("Error (promedio) = {0:.2f}".format(error_promedio))
+        print("Error (desviación estándar) = {0:.2f}".format(error_desviacion))
+        print("Tiempo = {0:.5f}s\n".format(tiempo))
 
-    return x, ecm, tiempo
+    return x, error_promedio, error_desviacion, tiempo
 
 
 # Procesamiento de los datos (adaptado a los ejemplos)
@@ -223,16 +227,20 @@ def main():
     print("EJEMPLO 1")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/muertos.csv"
     te, ye, tv, yv = procesar(url)
-    x1, _, _ = resolver(6, te, ye, tv, yv, 1, True)
-    x2, _, _ = resolver(6, te, ye, tv, yv, 2, True)
-    # for i in range(6): print("\t\t$x_{0}$ & {1} & {2} \\\\ \hline".format(i+1, x1[i], x2[i]))
+    resolver(5, te, ye, tv, yv, 1, True)
+    resolver(5, te, ye, tv, yv, 2, True)
+    # x2, _, _, _ = resolver(5, te, ye, tv, yv, 1, True)
+    # x2, _, _, _ = resolver(5, te, ye, tv, yv, 2, True)
+    # for i in range(5): print("\t\t$x_{0}$ & {1} & {2} \\\\ \hline".format(i+1, x1[i], x2[i]))
 
     print("EJEMPLO 2")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/recuperados.csv"
     te, ye, tv, yv = procesar(url)
-    x1, _, _ = resolver(6, te, ye, tv, yv, 1, True)
-    x2, _, _ = resolver(6, te, ye, tv, yv, 2, True)
-    # for i in range(6): print("\t\t$x_{0}$ & {1} & {2} \\\\ \hline".format(i+1, x1[i], x2[i]))
+    resolver(8, te, ye, tv, yv, 1, True)
+    resolver(8, te, ye, tv, yv, 2, True)
+    # x1, _, _, _ = resolver(8, te, ye, tv, yv, 1, True)
+    # x2, _, _, _ = resolver(8, te, ye, tv, yv, 2, True)
+    # for i in range(8): print("\t\t$x_{0}$ & {1} & {2} \\\\ \hline".format(i+1, x1[i], x2[i]))
 
 
 main()
@@ -245,20 +253,20 @@ main()
 def estadisticas(url):
     n = [i for i in range(2, 13)]
     te, ye, tv, yv = procesar(url)
-    t_en, t_hh, e_en, e_hh = [], [], [], []
-    # best_en, best_ecm_en, best_hh, best_ecm_hh = 13, float("inf"), 13, float("inf")
+    t_en, t_hh, e_en, e_hh, d_en, d_hh = [], [], [], [], [], []
+    best_en, best_error_en, best_hh, best_error_hh = 13, float("inf"), 13, float("inf")
 
     for i in n:
-        x, ecm_en, tiempo_en = resolver(i, te, ye, tv, yv, 1, False)
-        x, ecm_hh, tiempo_hh = resolver(i, te, ye, tv, yv, 2, False)
+        x, prom_en, desv_en, tiempo_en = resolver(i, te, ye, tv, yv, 1, False)
+        x, prom_hh, desv_hh, tiempo_hh = resolver(i, te, ye, tv, yv, 2, False)
         t_en += [tiempo_en]
         t_hh += [tiempo_hh]
-        e_en += [ecm_en]
-        e_hh += [ecm_hh]
-    #     if (ecm_en < best_ecm_en): best_en, best_ecm_en = i, ecm_en
-    #     if (ecm_hh < best_ecm_hh): best_hh, best_ecm_hh = i, ecm_hh
-    # print(best_en, best_ecm_en)
-    # print(best_hh, best_ecm_hh)
+        e_en += [prom_en]
+        e_hh += [prom_hh]
+        d_en += [desv_en]
+        d_hh += [desv_hh]
+        if (prom_en < best_error_en): best_en, best_error_en = i, prom_en
+        if (prom_hh < best_error_hh): best_hh, best_error_hh = i, prom_hh
 
     print("------------------------------------------------------------")
     print("                    Tiempo de ejecución                     ")
@@ -275,20 +283,23 @@ def estadisticas(url):
     plt.grid()
     plt.show()
 
-    print("------------------------------------------------------------")
-    print("                   Error Cuadrático Medio                   ")
-    print("------------------------------------------------------------")
-    print("n\tEcuaciones Normales\tTransformaciones Householder")
-    print("------------------------------------------------------------")
-    for i in n: print("{0}\t{1}\t{2}".format(i, e_en[i-2], e_hh[i-2]))
-    # for i in n: print("\t\t{0} & {1:.2f} & {2:.2f} \\\\ \hline".format(i, e_en[i-2], e_hh[i-2]))
-    print("------------------------------------------------------------")
+    print("-----------------------------------------------------------------------")
+    print("                                 Error                                 ")
+    print("-----------------------------------------------------------------------")
+    print("n\tPromedio (EN)\tPromedio (TH)\tDesviación (EN)\tDesviación (TH)")
+    print("-----------------------------------------------------------------------")
+    for i in n: print("{0}\t{1:.5f}\t{2:.5f}\t{3:.5f}\t{4:.5f}".format(i, e_en[i-2], d_en[i-2], e_hh[i-2], d_hh[i-2]))
+    # for i in n: print("\t\t{0} & {1:.5f} & {2:.5f} & {3:.5f} & {4:.5f} \\\\ \hline".format(i, e_en[i-2], d_en[i-2], e_hh[i-2], d_hh[i-2]))
+    print("-----------------------------------------------------------------------")
     plt.plot(n, e_en, marker="o", color="red")
     plt.plot(n, e_hh, marker="o", color="blue")
     plt.xlabel("n")
-    plt.ylabel("Error Cuadrático Medio")
+    plt.ylabel("Error")
     plt.grid()
     plt.show()
+
+    print("Mejor n (Ecuaciones Normales) = {0}".format(best_en))
+    print("Mejor n (Transformaciones Householder) = {0}\n".format(best_hh))
 
 
 print("EJEMPLO 1")
