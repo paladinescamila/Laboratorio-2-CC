@@ -147,6 +147,11 @@ def householder(n, t, y):
 
 # Ejecuta una función polinómica para una entrada t con parámetros x
 def polinomio(n, t, x):
+    """
+    Entrada: dos enteros n y t, un vector x.
+    Salida: f(t) = x1 + x2*t + ... + xn*t^n.
+    """
+    
     ft = sum([x[i]*t**i for i in range(n)])
     return ft
 
@@ -228,23 +233,17 @@ def main():
 
     print("EJEMPLO 1")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/muertos.csv"
-    # url = "muertos.csv" # Usar esta URL en caso de no tener conexión a internet
+    # url = "muertos.csv" # URL alternativa para ejecutar de manera local
     te, ye, tv, yv = procesar(url)
     resolver(5, te, ye, tv, yv, 1, True)
     resolver(5, te, ye, tv, yv, 2, True)
-    # x2, _, _, _ = resolver(5, te, ye, tv, yv, 1, True)
-    # x2, _, _, _ = resolver(5, te, ye, tv, yv, 2, True)
-    # for i in range(5): print("\t\t$x_{0}$ & {1} & {2} \\\\ \hline".format(i+1, x1[i], x2[i]))
 
     print("EJEMPLO 2")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/recuperados.csv"
-    # url = "recuperados.csv" # Usar esta URL en caso de no tener conexión a internet
+    # url = "recuperados.csv" # URL alternativa para ejecutar de manera local
     te, ye, tv, yv = procesar(url)
     resolver(8, te, ye, tv, yv, 1, True)
     resolver(8, te, ye, tv, yv, 2, True)
-    # x1, _, _, _ = resolver(8, te, ye, tv, yv, 1, True)
-    # x2, _, _, _ = resolver(8, te, ye, tv, yv, 2, True)
-    # for i in range(8): print("\t\t$x_{0}$ & {1} & {2} \\\\ \hline".format(i+1, x1[i], x2[i]))
 
 
 main()
@@ -253,14 +252,16 @@ main()
 # ----------------------------------------------------------------------
 # ANÁLISIS DE COMPLEJIDAD Y EXACTITUD DE LOS MÉTODOS
 
-# Comparar los métodos con los diferentes valores de n
+# Comparación de los métodos con los diferentes valores de n
 def estadisticas(url):
+
     n = [i for i in range(2, 13)]
     te, ye, tv, yv = procesar(url)
     t_en, t_hh, e_en, e_hh, d_en, d_hh = [], [], [], [], [], []
-    best_en, best_error_en, best_hh, best_error_hh = 13, float("inf"), 13, float("inf")
+    best_en, best_en_error, best_hh, best_hh_error = 13, float("inf"), 13, float("inf")
 
     for i in n:
+
         x, prom_en, desv_en, tiempo_en = resolver(i, te, ye, tv, yv, 1, False)
         x, prom_hh, desv_hh, tiempo_hh = resolver(i, te, ye, tv, yv, 2, False)
         e_en += [prom_en]
@@ -270,8 +271,8 @@ def estadisticas(url):
         t_en += [tiempo_en]
         t_hh += [tiempo_hh]
 
-        if (prom_en < best_error_en): best_en, best_error_en = i, prom_en
-        if (prom_hh < best_error_hh): best_hh, best_error_hh = i, prom_hh
+        if (prom_en < best_en_error): best_en, best_en_error = i, prom_en
+        if (prom_hh < best_hh_error): best_hh, best_hh_error = i, prom_hh
 
     print("------------------------------------------------------------")
     print("                    Tiempo de ejecución                     ")
@@ -279,7 +280,6 @@ def estadisticas(url):
     print("n\tEcuaciones Normales\tTransformaciones Householder")
     print("------------------------------------------------------------")
     for i in n: print("{0}\t{1}\t{2}".format(i, t_en[i-2], t_hh[i-2]))
-    # for i in n: print("\t\t{0} & {1:.5f} & {2:.5f} \\\\ \hline".format(i, t_en[i-2], t_hh[i-2]))
     print("------------------------------------------------------------")
     plt.plot(n, t_en, marker="o", color="red")
     plt.plot(n, t_hh, marker="o", color="blue")
@@ -291,10 +291,9 @@ def estadisticas(url):
     print("-----------------------------------------------------------------------")
     print("                                 Error                                 ")
     print("-----------------------------------------------------------------------")
-    print("n\tPromedio (EN)\Desviación (EN)\tPromedio (TH)\tDesviación (TH)")
+    print("n\tPromedio (EN)\tDesviación (EN)\tPromedio (TH)\tDesviación (TH)")
     print("-----------------------------------------------------------------------")
     for i in n: print("{0}\t{1:.5f}\t{2:.5f}\t{3:.5f}\t{4:.5f}".format(i, e_en[i-2], d_en[i-2], e_hh[i-2], d_hh[i-2]))
-    # for i in n: print("\t\t{0} & {1:.5f} & {2:.5f} & {3:.5f} & {4:.5f} \\\\ \hline".format(i, e_en[i-2], d_en[i-2], e_hh[i-2], d_hh[i-2]))
     print("-----------------------------------------------------------------------")
     plt.plot(n, e_en, marker="o", color="red")
     plt.plot(n, e_hh, marker="o", color="blue")
@@ -309,10 +308,10 @@ def estadisticas(url):
 
 print("EJEMPLO 1")
 url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/muertos.csv"
-# url = "muertos.csv" # Usar esta URL en caso de no tener conexión a internet
+# url = "muertos.csv" # URL alternativa para ejecutar de manera local
 estadisticas(url)
 
 print("EJEMPLO 2")
 url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/recuperados.csv"
-# url = "recuperados.csv" # Usar esta URL en caso de no tener conexión a internet
+# url = "recuperados.csv" # URL alternativa para ejecutar de manera local
 estadisticas(url)
