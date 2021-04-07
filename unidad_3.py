@@ -207,11 +207,9 @@ def procesar(url):
     """
 
     N = 50
-    datos = pd.read_csv(url)
-    borrar = ["Province/State", "Country/Region", "Lat", "Long"]
-    for i in borrar: datos = datos.drop(i, axis=1)
-    t = [i + 1 for i in range(N)]
-    y = [i for i in datos.sum().tolist()[-N:]]
+    datos = pd.read_csv(url, header=None)
+    t = datos[0].tolist()[-N:]
+    y = datos[1].tolist()[-N:]
 
     te = [t[i] for i in range(N) if (i % 2 == 0)]
     ye = [y[i] for i in range(N) if (i % 2 == 0)]
@@ -226,6 +224,7 @@ def main():
 
     print("EJEMPLO 1")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/muertos.csv"
+    # url = "muertos.csv" # Usar esta URL en caso de no tener conexión a internet
     te, ye, tv, yv = procesar(url)
     resolver(5, te, ye, tv, yv, 1, True)
     resolver(5, te, ye, tv, yv, 2, True)
@@ -235,6 +234,7 @@ def main():
 
     print("EJEMPLO 2")
     url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/recuperados.csv"
+    # url = "recuperados.csv" # Usar esta URL en caso de no tener conexión a internet
     te, ye, tv, yv = procesar(url)
     resolver(8, te, ye, tv, yv, 1, True)
     resolver(8, te, ye, tv, yv, 2, True)
@@ -257,6 +257,7 @@ def estadisticas(url):
     best_en, best_error_en, best_hh, best_error_hh = 13, float("inf"), 13, float("inf")
 
     for i in n:
+
         x, prom_en, desv_en, tiempo_en = resolver(i, te, ye, tv, yv, 1, False)
         x, prom_hh, desv_hh, tiempo_hh = resolver(i, te, ye, tv, yv, 2, False)
         t_en += [tiempo_en]
@@ -265,6 +266,7 @@ def estadisticas(url):
         e_hh += [prom_hh]
         d_en += [desv_en]
         d_hh += [desv_hh]
+
         if (prom_en < best_error_en): best_en, best_error_en = i, prom_en
         if (prom_hh < best_error_hh): best_hh, best_error_hh = i, prom_hh
 
@@ -304,8 +306,10 @@ def estadisticas(url):
 
 print("EJEMPLO 1")
 url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/muertos.csv"
+# url = "muertos.csv" # Usar esta URL en caso de no tener conexión a internet
 estadisticas(url)
 
 print("EJEMPLO 2")
 url = "https://raw.githubusercontent.com/paladinescamila/Laboratorio-2-CC/main/recuperados.csv"
+# url = "recuperados.csv" # Usar esta URL en caso de no tener conexión a internet
 estadisticas(url)
