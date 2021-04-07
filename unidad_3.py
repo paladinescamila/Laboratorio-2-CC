@@ -11,6 +11,7 @@ def sucesiva_hacia_atras(A, b):
     Entrada: una matriz triangular superior A y un vector b.
     Salida: un vector x tal que Ax = b.
     """
+
     if (np.linalg.det(A) == 0):
         print("A es una matriz singular, el sistema no tiene solución.")
         return []
@@ -33,6 +34,7 @@ def matriz_de_eliminacion(A, k, g):
     Salida: matriz de eliminación de Gauss (si g es verdadero) o matriz de 
             eliminación de Gauss-Jordan (si g es falso) para la columna Ak.
     """
+
     n = len(A)
     M = np.identity(n)
     for i in range(k+1, n):
@@ -52,6 +54,7 @@ def permutar(A, b, k):
             además de un booleano que determina si el nuevo valor
             del pivote es cero.
     """
+
     n = len(A)
     i = k + 1
     while (i != n and A[k][k] == 0):
@@ -71,6 +74,7 @@ def gauss(A, b):
     Entrada: una matriz cuadrada A y un vector b.
     Salida: un vector x tal que Ax = b.
     """
+
     if (np.linalg.det(A) == 0):
         print("A es una matriz singular, el sistema no tiene solución.")
         return []
@@ -191,9 +195,9 @@ def resolver(n, te, ye, tv, yv, metodo, mostrar):
         plt.show()
 
         print("x = {0}".format(x))
+        print("Tiempo = {0:.5f}s".format(tiempo))
         print("Error (promedio) = {0:.2f}".format(error_promedio))
-        print("Error (desviación estándar) = {0:.2f}".format(error_desviacion))
-        print("Tiempo = {0:.5f}s\n".format(tiempo))
+        print("Error (desviación estándar) = {0:.2f}\n".format(error_desviacion))
 
     return x, error_promedio, error_desviacion, tiempo
 
@@ -208,7 +212,7 @@ def procesar(url):
 
     N = 50
     datos = pd.read_csv(url, header=None)
-    t = datos[0].tolist()[-N:]
+    t = [i + 1 for i in range(N)]
     y = datos[1].tolist()[-N:]
 
     te = [t[i] for i in range(N) if (i % 2 == 0)]
@@ -257,15 +261,14 @@ def estadisticas(url):
     best_en, best_error_en, best_hh, best_error_hh = 13, float("inf"), 13, float("inf")
 
     for i in n:
-
         x, prom_en, desv_en, tiempo_en = resolver(i, te, ye, tv, yv, 1, False)
         x, prom_hh, desv_hh, tiempo_hh = resolver(i, te, ye, tv, yv, 2, False)
-        t_en += [tiempo_en]
-        t_hh += [tiempo_hh]
         e_en += [prom_en]
         e_hh += [prom_hh]
         d_en += [desv_en]
         d_hh += [desv_hh]
+        t_en += [tiempo_en]
+        t_hh += [tiempo_hh]
 
         if (prom_en < best_error_en): best_en, best_error_en = i, prom_en
         if (prom_hh < best_error_hh): best_hh, best_error_hh = i, prom_hh
@@ -288,7 +291,7 @@ def estadisticas(url):
     print("-----------------------------------------------------------------------")
     print("                                 Error                                 ")
     print("-----------------------------------------------------------------------")
-    print("n\tPromedio (EN)\tPromedio (TH)\tDesviación (EN)\tDesviación (TH)")
+    print("n\tPromedio (EN)\Desviación (EN)\tPromedio (TH)\tDesviación (TH)")
     print("-----------------------------------------------------------------------")
     for i in n: print("{0}\t{1:.5f}\t{2:.5f}\t{3:.5f}\t{4:.5f}".format(i, e_en[i-2], d_en[i-2], e_hh[i-2], d_hh[i-2]))
     # for i in n: print("\t\t{0} & {1:.5f} & {2:.5f} & {3:.5f} & {4:.5f} \\\\ \hline".format(i, e_en[i-2], d_en[i-2], e_hh[i-2], d_hh[i-2]))
