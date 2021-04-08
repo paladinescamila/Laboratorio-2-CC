@@ -217,13 +217,12 @@ def procesar(url):
 
     N = 50
     datos = pd.read_csv(url, header=None)
-    t = [i + 1 for i in range(N)]
     y = datos[1].tolist()[-N:]
 
-    te = [t[i] for i in range(N) if (i % 2 == 0)]
-    ye = [y[i] for i in range(N) if (i % 2 == 0)]
-    tv = [t[i] for i in range(N) if (i % 2 != 0)]
-    yv = [y[i] for i in range(N) if (i % 2 != 0)]
+    te = [i for i in range(1, N, 2)]
+    ye = [y[i] for i in range(0, N, 2)]
+    tv = [i for i in range(2, N+1, 2)]
+    yv = [y[i] for i in range(1, N, 2)]
 
     return te, ye, tv, yv
 
