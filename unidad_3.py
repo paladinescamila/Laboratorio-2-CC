@@ -156,17 +156,18 @@ def polinomio(n, t, x):
     return ft
 
 
-# Grafica los puntos y función resultante en el plano
+# Muestra los resultados del método, la exactitud y el tiempo de cómputo
 def resolver(n, te, ye, tv, yv, metodo, mostrar):
     """
     Entrada: un entero n, cuatro vectores te, ye, tv, yv que contienen
-            los datos de entrenamiento y validación, respectivamente, 
-            un entero "metodo" que es 1 si se calcula para Ecuaciones
-            Normales y es 2 si se calcula para Transformaciones Householder, 
-            y un booleano "mostrar" que si es verdadero grafica las funciones 
-            e imprime los resultados.
-    Salida: parámetros x del ajuste de datos, error promedio, desviación
-            estándar del error, y tiempo de cómputo para el método seleccionado.
+            los datos de entrenamiento y validación, un entero "metodo" 
+            que si es 1 se calcula para Ecuaciones Normales y si es 2 
+            se calcula para Transformaciones Householder, y un booleano 
+            "mostrar" que si es verdadero grafica las funciones e imprime 
+            los resultados.
+    Salida: parámetros x del ajuste de datos, error absoluto promedio, 
+            desviación estándar del error, y tiempo de cómputo para el 
+            método seleccionado.
     """
 
     if (metodo == 1):
@@ -303,8 +304,8 @@ def estadisticas(url):
     plt.grid()
     plt.show()
 
-    print("Mejor n (Ecuaciones Normales) = {0}".format(best_en))
-    print("Mejor n (Transformaciones Householder) = {0}\n".format(best_hh))
+    print("Mejor n con Ecuaciones Normales = {0} (error = {1:.2f})".format(best_en, best_en_error))
+    print("Mejor n con Transformaciones Householder = {0} (error = {1:.2f})\n".format(best_hh, best_hh_error))
 
 
 print("EJEMPLO 1")
